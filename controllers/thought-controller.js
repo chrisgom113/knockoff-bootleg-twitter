@@ -72,11 +72,12 @@ const thoughtController = {
   },
 
   deleteThought(req, res) {
-    Thought.findOneAndDelete({ _id: req.params.thoughtId })
+    Thought.findOneAndRemove({ _id: req.params.thoughtId })
       .then((dbThoughtData) => {
         if (!dbThoughtData) {
           return res.status(404).json({ message: "No thought with this id!" });
         }
+
         return User.findOneAndUpdate(
           { thoughts: req.params.thoughtId },
           { $pull: { thoughts: req.params.thoughtId } },
@@ -85,7 +86,9 @@ const thoughtController = {
       })
       .then((dbUserData) => {
         if (!dbUserData) {
-          return res.status(404).json({ message: "No user with this id!" });
+          return res
+            .status(404)
+            .json({ message: "Thought was unthunk but no user with this id!" });
         }
         res.json({ message: "Successfully unthought the thought" });
       })
